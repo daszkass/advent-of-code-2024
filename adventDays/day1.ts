@@ -1,4 +1,6 @@
-export const findTotalDistance = (
+import { leftColumn, rightColumn } from "../data/day1.js";
+
+const findTotalDistance = (
   leftColumn: number[],
   rightColumn: number[]
 ): number => {
@@ -11,7 +13,7 @@ export const findTotalDistance = (
   return pairsOfData.reduce((acc, v) => v[0] - v[1] + acc, 0);
 };
 
-export const findTotalSimilarity = (
+const findTotalSimilarity = (
   leftColumn: number[],
   rightColumn: number[]
 ): number => {
@@ -22,3 +24,8 @@ export const findTotalSimilarity = (
 
   return valuesWithItsSimilarities.reduce((acc, v) => v[0] * v[1] + acc, 0);
 };
+
+const totalDistance = findTotalDistance(leftColumn, rightColumn);
+const totalSimilarity = findTotalSimilarity(leftColumn, rightColumn);
+
+console.log(totalDistance, totalSimilarity);
