@@ -17,45 +17,49 @@ const updates = testData
 const findRules = (update: number[]) => {
   const rulesForUpdate = [];
   update.forEach((page, index) => {
-    const rules = pageOrderingRules.filter((rule) =>
-      rule.includes(page.toString())
+    const rules = pageOrderingRules.filter(
+      (rule) =>
+        rule.includes(page.toString()) &&
+        update
+          .toSpliced(index, 1)
+          .some((page) => rule.includes(page.toString()))
     );
-    const relevantRules = rules.filter((rule) =>
-      update.toSpliced(index, 1).some((page) => rule.includes(page.toString()))
-    );
-    rulesForUpdate.push(...relevantRules);
+    rulesForUpdate.push(...rules);
   });
   return [...new Set(rulesForUpdate)];
 };
 
-const countOrder = (page: number, onLeft: number[], onRight: number[]) => {
-  const presenceOnLeft = onLeft.filter((el) => el === page).length;
-  const presenceOnRight = onRight.filter((el) => el === page).length;
-  return presenceOnRight - presenceOnLeft;
-};
-
-const arePagesSorted = (update: number[]) => {
+const sortPages = (update: number[]) => {
   const rules = findRules(update);
   const onLeft = rules.map((rule) => Number(rule.split("|")[0]));
   const onRight = rules.map((rule) => Number(rule.split("|")[1]));
 
-  const pagesWithTheirOrder = update.map((page) => [
-    page,
-    countOrder(page, onLeft, onRight),
-  ]);
-  const pagesWithOrderSorted = pagesWithTheirOrder.sort((a, b) => a[1] - b[1]);
+  const countPosition = (page: number) => {
+    const presenceOnLeft = onLeft.filter((el) => el === page).length;
+    const presenceOnRight = onRight.filter((el) => el === page).length;
+    return presenceOnRight - presenceOnLeft;
+  };
 
-  return pagesWithOrderSorted
-    .map((el) => el[0])
-    .every((v, i) => v === update[i]);
+  const pagesWithTheirPositionsSorted = update
+    .map((page) => [page, countPosition(page)])
+    .sort((a, b) => a[1] - b[1]);
+
+  return pagesWithTheirPositionsSorted.map((el) => el[0]);
 };
 
-let result = 0;
-updates.forEach((update) => {
-    if (arePagesSorted(update)) {
-        const middleValue = update[Math.floor(update.length /2)]
-        result += middleValue
-    }
-})
+let initialResult = 0;
+let resultAfterSorting = 0;
 
-console.log(result)
+updates.forEach((update) => {
+  const sortedUpdate = sortPages(update);
+  const middleValue = sortedUpdate[Math.floor(sortedUpdate.length / 2)];
+
+  if (sortedUpdate.every((v, i) => v === update[i])) {
+    initialResult += middleValue;
+  } else {
+    resultAfterSorting += middleValue;
+  }
+});
+
+console.log(initialResult);
+console.log(resultAfterSorting);
